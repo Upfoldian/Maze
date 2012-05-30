@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-#define initMaze(size) for (int i = 0; i < size; i++) for (int j = 0; j < size; j++) maze[i][j] = new tile;
+//#define initMaze(size) for (int i = 0; i < size; i++) for (int j = 0; j < size; j++) maze[i][j] = new tile;
 #include <ncurses/ncurses.h>
 #include <algorithm>
 using namespace std;
@@ -18,7 +18,7 @@ void write(string s, int y, int x);
 void printMaze();
 void carveMaze(int x, int y);
 void printTile(int x, int y);
-
+void initMaze(int size);
 const static int size = 4;
 tile* maze[size][size];
 
@@ -26,15 +26,7 @@ int main() {
 	initMaze(size);
 	initscr();
 	noecho();
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			maze[j][i]->up = true;
-			maze[j][i]->down = true;
-			maze[j][i]->left = true;
-			maze[j][i]->right = true;
-			maze[j][i]->visited = false;
-		}
-	}
+	initMaze(size);
 	printMaze();
 	carveMaze(0,0);
 	//cout << maze[0][0]->down << endl;
@@ -42,6 +34,18 @@ int main() {
 	//getch();
 	endwin();
 	return 0;
+}
+void initMaze(int size) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			maze[j][i] = new tile;
+			maze[j][i]->up = true;
+			maze[j][i]->down = true;
+			maze[j][i]->left = true;
+			maze[j][i]->right = true;
+			maze[j][i]->visited = false;
+		}
+	}
 }
 bool inBounds(int x, int y, char dir) {
 	switch(dir) {
@@ -67,8 +71,6 @@ void carveMaze(int x, int y) {
 	//getch();
 	for (int i = 0; i < size; i++) {
 		if (inBounds(x,y,dir[i])) {
-			write(dir[i],0,15);
-			//getch();
 			switch(dir[i]) {
 				case 'U': 
 					if(maze[x][y-1]->visited == false) {
@@ -105,9 +107,8 @@ void carveMaze(int x, int y) {
 void printTile(int x, int y) {
 	tile *cur = maze[x][y];
 	int offsetX = 1 + (2*x); 
-	write(offsetX+48, 4,15);
 	if(!cur->up) 		write(' ', y, offsetX);
-	if(!cur->down) 	write(' ', y+1, offsetX);
+	if(!cur->down)	write(' ', y+1, offsetX);
 	if(!cur->right)  	write(' ', y+1, offsetX+1);
 	if(!cur->left)		write(' ', y+1, offsetX-1);
 	move(y+1,offsetX);
