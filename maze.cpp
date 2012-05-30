@@ -38,8 +38,8 @@ int main() {
 	printMaze();
 	carveMaze(0,0);
 	//cout << maze[0][0]->down << endl;
-	printMaze();
-	getch();
+	//printMaze();
+	//getch();
 	endwin();
 	return 0;
 }
@@ -105,12 +105,12 @@ void carveMaze(int x, int y) {
 void printTile(int x, int y) {
 	tile *cur = maze[x][y];
 	int offsetX = 1 + (2*x); 
-	write(offsetX+48, 4,15)
-	if(!cur->up) 		write(' ', y-1, offsetX);
+	write(offsetX+48, 4,15);
+	if(!cur->up) 		write(' ', y, offsetX);
 	if(!cur->down) 	write(' ', y+1, offsetX);
-	if(!cur->right)  	write(' ', y, offsetX+1);
-	if(!cur->left)		write(' ', y, offsetX-1);
-	move(y,offsetX);
+	if(!cur->right)  	write(' ', y+1, offsetX+1);
+	if(!cur->left)		write(' ', y+1, offsetX-1);
+	move(y+1,offsetX);
 	getch();
 }
 void printMaze() {
