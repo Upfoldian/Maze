@@ -23,13 +23,22 @@ void initMaze(int size);
 void clearMaze(int size);
 void shuffle(char* dir, int size);
 
-static const int size = 20;
-tile* maze[size][size];
+int size = 15;
+tile* maze[100][100];
 
-int main() {
+int main(int argc, char *argv[]) {
 	initMaze(size);
 	initscr();
 	noecho();
+		if (argc > 1) {
+		size = atoi(argv[1]);
+		if (size > 24) {
+			size = 24;
+			write("Size has been restricted", 0,50);
+			getch();
+		}
+	}
+	
 	initMaze(size);
 	printMaze();
 	carveMaze(0,0);
@@ -133,7 +142,6 @@ void printTile(int x, int y) {
 	if(!cur->right)  	write(' ', y+1, offsetX+1);
 	if(!cur->left)		write(' ', y+1, offsetX-1);
 	move(y+1,offsetX);
-	timeout(100);
 	getch();
 }
 void printMaze() {
