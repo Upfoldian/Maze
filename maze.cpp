@@ -21,6 +21,7 @@ void carveMaze(int x, int y);
 void printTile(int x, int y);
 void initMaze(int size);
 void clearMaze(int size);
+void shuffle(char* dir, int size);
 
 static const int size = 20;
 tile* maze[size][size];
@@ -33,6 +34,16 @@ int main() {
 	printMaze();
 	carveMaze(0,0);
 	printMaze();
+	int count = 0;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (maze[i][j]->visited == false) {
+				++count;
+			}
+		}
+	}
+	if (count != 0) write("unvisted tiles", 25,5);
+	getch();
 	clearMaze(size);
 	endwin();
 	return 0;
@@ -71,11 +82,13 @@ bool inBounds(int x, int y, char dir) {
 }
 void carveMaze(int x, int y) {
 	char dir[] = {'U','D','L','R'};
-	std::random_shuffle(dir,dir+size-1);
+	//shuffle(dir,4);
+	std::random_shuffle(dir, dir+4);
 	tile *curTile = maze[x][y];
 	curTile->visited = true;
+	/*Colour stuff*/
 	printTile(x,y);
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < 4; i++) {
 		if (inBounds(x,y,dir[i])) {
 			switch(dir[i]) {
 				case 'U': 
@@ -120,7 +133,7 @@ void printTile(int x, int y) {
 	if(!cur->right)  	write(' ', y+1, offsetX+1);
 	if(!cur->left)		write(' ', y+1, offsetX-1);
 	move(y+1,offsetX);
-	timeout(200);
+	timeout(100);
 	getch();
 }
 void printMaze() {
@@ -149,3 +162,18 @@ void write(string s, int y, int x) {
 		addch(s[i]);
 	}
 }	
+void shuffle(char* dir, int size) {
+	for(int i = 0; i < size; i++) {
+		int decision = rand()%2;
+		if (decision) {
+			int toSwap = rand()%size;
+			char temp = dir[i];
+			dir[i] = dir[toSwap];
+			dir[toSwap] = temp;
+		}
+	}		
+}
+	
+	
+	
+	
