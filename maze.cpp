@@ -14,12 +14,15 @@ struct tile {
 };
 
 void write(char s, int x, int y);
+void write(int s, int y, int x); 
 void write(string s, int y, int x);
 void printMaze();
 void carveMaze(int x, int y);
 void printTile(int x, int y);
 void initMaze(int size);
-const static int size = 4;
+void clearMaze(int size);
+
+static const int size = 20;
 tile* maze[size][size];
 
 int main() {
@@ -30,8 +33,9 @@ int main() {
 	printMaze();
 	carveMaze(0,0);
 	//cout << maze[0][0]->down << endl;
-	//printMaze();
-	//getch();
+	printMaze();
+	getch();
+	clearMaze(size);
 	endwin();
 	return 0;
 }
@@ -47,10 +51,17 @@ void initMaze(int size) {
 		}
 	}
 }
+void clearMaze(int size) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			delete maze[j][i];
+		}
+	}
+}
 bool inBounds(int x, int y, char dir) {
 	switch(dir) {
 		case 'U':
-			return y>0;
+			return y > 0;
 		case 'D':
 			return y+1 < size;
 		case 'L':
@@ -62,7 +73,7 @@ bool inBounds(int x, int y, char dir) {
 }
 void carveMaze(int x, int y) {
 	char dir[] = {'U','D','L','R'};
-	std::random_shuffle(dir,dir+size);
+	std::random_shuffle(dir,dir+size-1);
 	tile *curTile = maze[x][y];
 	curTile->visited = true;
 	printTile(x,y);
@@ -70,6 +81,8 @@ void carveMaze(int x, int y) {
 	//write(y+48,1,15);
 	//getch();
 	for (int i = 0; i < size; i++) {
+		//write(dir[i],15,6);
+		//getch();
 		if (inBounds(x,y,dir[i])) {
 			switch(dir[i]) {
 				case 'U': 
@@ -100,6 +113,8 @@ void carveMaze(int x, int y) {
 						carveMaze(x+1,y);
 					}
 					break;
+				default:
+					write("something broke", 15,5);
 			}
 		}
 	}
@@ -140,4 +155,4 @@ void write(string s, int y, int x) {
 	for (int i = 0; i < s.length();i++) {
 		addch(s[i]);
 	}
-}		
+}	
