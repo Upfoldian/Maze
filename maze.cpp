@@ -32,9 +32,7 @@ int main() {
 	initMaze(size);
 	printMaze();
 	carveMaze(0,0);
-	//cout << maze[0][0]->down << endl;
 	printMaze();
-	getch();
 	clearMaze(size);
 	endwin();
 	return 0;
@@ -77,12 +75,7 @@ void carveMaze(int x, int y) {
 	tile *curTile = maze[x][y];
 	curTile->visited = true;
 	printTile(x,y);
-	//write(x+48,1,17);
-	//write(y+48,1,15);
-	//getch();
 	for (int i = 0; i < size; i++) {
-		//write(dir[i],15,6);
-		//getch();
 		if (inBounds(x,y,dir[i])) {
 			switch(dir[i]) {
 				case 'U': 
@@ -127,6 +120,7 @@ void printTile(int x, int y) {
 	if(!cur->right)  	write(' ', y+1, offsetX+1);
 	if(!cur->left)		write(' ', y+1, offsetX-1);
 	move(y+1,offsetX);
+	timeout(200);
 	getch();
 }
 void printMaze() {
@@ -140,7 +134,6 @@ void printMaze() {
 			if(cur->right)  	write('|',curY,curX+1); else write(' ',curY,curX+1);
 			if(cur->left) 		write('|', curY,curX-1);else write(' ', curY,curX-1);
 			curY++;
-			//getch();
 		}
 		curX+=2;
 	}
