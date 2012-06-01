@@ -1,6 +1,14 @@
+/*
+	Written by Thomas Upfold for fun on the 1st of June
+	Last Updated: 2/6/12
+	Notes: 
+		-Could potential add polygon functionality using adjacncy lists
+		-carveMaze could potential be better
+		-the 4 bools in the tile struct could potential be changed with an array and #defines for the directions
+		Currently, the 4 bools makes it easier to understand, but for 6+ sided tiles it might be tedious
+*/
+
 #include <cstdlib>
-#include <iostream>
-//#define initMaze(size) for (int i = 0; i < size; i++) for (int j = 0; j < size; j++) maze[i][j] = new tile;
 #include <ncurses/ncurses.h>
 #include <algorithm>
 using namespace std;
@@ -16,21 +24,20 @@ struct tile {
 void write(char s, int x, int y);
 void write(int s, int y, int x); 
 void write(string s, int y, int x);
-void printMaze();
-void carveMaze(int x, int y);
+void printMaze(int size);
+void carveMaze(int x, int y, int size);
 void printTile(int x, int y);
 void initMaze(int size);
 void clearMaze(int size);
 void shuffle(char* dir, int size);
 
-int size = 15;
+//int size = 15;
 tile* maze[100][100];
 
 int main(int argc, char *argv[]) {
-	initMaze(size);
-	initscr();
-	noecho();
-		if (argc > 1) {
+	/* Basic args stuff */
+	int size = 10;
+	if (argc > 1) {
 		size = atoi(argv[1]);
 		if (size > 24) {
 			size = 24;
@@ -38,25 +45,23 @@ int main(int argc, char *argv[]) {
 			getch();
 		}
 	}
-	
+	/* initialisation functions*/
 	initMaze(size);
-	printMaze();
-	carveMaze(0,0);
-	printMaze();
-	int count = 0;
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (maze[i][j]->visited == false) {
-				++count;
-			}
-		}
-	}
-	if (count != 0) write("unvisted tiles", 25,5);
-	getch();
+	initscr();
+	noecho();	
+	initMaze(size);
+	
+	/*Maze is printed here to keep the printTile function only printing spaces*/
+	printMaze(size);
+	carveMaze(0,0,size);
+	
+	/*memory clears*/
 	clearMaze(size);
 	endwin();
+	
 	return 0;
 }
+//Sets each array location in the maze
 void initMaze(int size) {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -69,6 +74,7 @@ void initMaze(int size) {
 		}
 	}
 }
+//Frees pointers using in maze
 void clearMaze(int size) {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -76,7 +82,8 @@ void clearMaze(int size) {
 		}
 	}
 }
-bool inBounds(int x, int y, char dir) {
+//Basic bounts check function
+bool inBounds(int x, int y, char dir, int size) {
 	switch(dir) {
 		case 'U':
 			return y > 0;
@@ -89,51 +96,52 @@ bool inBounds(int x, int y, char dir) {
 	}
 	return false;
 }
-void carveMaze(int x, int y) {
+/*This function takes location as parameters, picks a direction at random and calls 
+	this function on that new location, when it returns, it sees if it can go in any more directions.
+	See this page for a better explaination: 
+	http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap */	
+void carveMaze(int x, int y, int size) {
 	char dir[] = {'U','D','L','R'};
-	//shuffle(dir,4);
 	std::random_shuffle(dir, dir+4);
 	tile *curTile = maze[x][y];
 	curTile->visited = true;
-	/*Colour stuff*/
 	printTile(x,y);
 	for (int i = 0; i < 4; i++) {
-		if (inBounds(x,y,dir[i])) {
+		if (inBounds(x,y,dir[i],size)) {
 			switch(dir[i]) {
 				case 'U': 
 					if(maze[x][y-1]->visited == false) {
 						curTile->up = false;
 						maze[x][y-1]->down = false;
-						carveMaze(x,y-1);
+						carveMaze(x,y-1,size);
 					}
 					break;
 				case 'D':
 					if(maze[x][y+1]->visited == false) {
 						curTile->down = false;
 						maze[x][y+1]->up = false;
-						carveMaze(x,y+1);
+						carveMaze(x,y+1,size);
 					}
 					break;
 				case 'L':
 					if(maze[x-1][y]->visited == false) {
 						curTile->left = false;
 						maze[x-1][y]->right = false;
-						carveMaze(x-1,y);
+						carveMaze(x-1,y,size);
 					}
 					break;
 				case 'R':
 					if(maze[x+1][y]->visited == false) {
 						curTile->right = false;
 						maze[x+1][y]->left = false;
-						carveMaze(x+1,y);
+						carveMaze(x+1,y,size);
 					}
 					break;
-				default:
-					write("something broke", 15,5);
 			}
 		}
 	}
 }
+//Used in conjunction with carveTile to 'animate' the carve process. It updates surrounding tiles
 void printTile(int x, int y) {
 	tile *cur = maze[x][y];
 	int offsetX = 1 + (2*x); 
@@ -144,7 +152,7 @@ void printTile(int x, int y) {
 	move(y+1,offsetX);
 	getch();
 }
-void printMaze() {
+void printMaze(int size) {
 	int curX = 1, curY = 1;
 	for (int i = 0; i < size; i++) {
 		curY = 1;
@@ -160,6 +168,7 @@ void printMaze() {
 	}
 	refresh();
 }
+//Some additional functions I use with ncurses
 void write(char s, int y, int x) {
 	move(y, x);
 	addch(s);
@@ -170,17 +179,7 @@ void write(string s, int y, int x) {
 		addch(s[i]);
 	}
 }	
-void shuffle(char* dir, int size) {
-	for(int i = 0; i < size; i++) {
-		int decision = rand()%2;
-		if (decision) {
-			int toSwap = rand()%size;
-			char temp = dir[i];
-			dir[i] = dir[toSwap];
-			dir[toSwap] = temp;
-		}
-	}		
-}
+
 	
 	
 	
